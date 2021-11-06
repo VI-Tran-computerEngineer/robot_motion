@@ -1,18 +1,22 @@
+//#include "robot_motion_node.hpp"
+
 #include "ros/ros.h"
 #include "geometry_msgs/Twist.h"
 #include "turtlesim/Pose.h"
 #include "std_msgs/String.h"
+
 #include <sstream>
 #include <string>
 #include <string.h>
-
-using namespace std;
 
 #define MV_SPEED 2
 #define ANGULAR_SPEED 40
 #define PI 3.1416
 
+using namespace std;
+
 ros::Publisher velocity_publisher;
+geometry_msgs::Twist vel_msg;
 
 void move(double speed, double distance, bool isForward);
 void rotate(double angular_speed, double angle, bool cloclwise);
@@ -28,12 +32,13 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "robot_motion");
     ros::NodeHandle n;
 
-    velocity_publisher = n.advertise<geometry_msgs::Twist>("/turtle1/cmd_vel", 1000);
+    velocity_publisher = n.advertise<geometry_msgs::Twist>("cmd_vel", 1000);
     ros::Rate loop_rate(10);
 
     //	/turtle1/cmd_vel is the Topic name
     //	/geometry_msgs::Twist is the msg type
     ROS_INFO("\n\n\n ******** START *********\n");
+
     ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);
     ros::spin();
 
@@ -42,18 +47,17 @@ int main(int argc, char **argv)
 
 void move(double speed, double distance, bool isForward)
 {
-    geometry_msgs::Twist vel_msg;
     //set a random linear velocity in the x-axis
-    if (isForward)
-        vel_msg.linear.x = abs(speed);
-    else
-        vel_msg.linear.x = -abs(speed);
     vel_msg.linear.y = 0;
     vel_msg.linear.z = 0;
     //set a random angular velocity in the y-axis
     vel_msg.angular.x = 0;
     vel_msg.angular.y = 0;
     vel_msg.angular.z = 0;
+    if (isForward)
+        vel_msg.linear.x = abs(speed);
+    else
+        vel_msg.linear.x = -abs(speed);
 
     double t0 = ros::Time::now().toSec();
     double current_distance = 0.0;
@@ -73,8 +77,6 @@ void move(double speed, double distance, bool isForward)
 
 void rotate(double angular_speed, double relative_angle, bool clockwise)
 {
-
-    geometry_msgs::Twist vel_msg;
     //set a random linear velocity in the x-axis
     vel_msg.linear.x = 0;
     vel_msg.linear.y = 0;
@@ -205,8 +207,8 @@ void chatterCallback(const std_msgs::String::ConstPtr &msg)
                 cout << "Message type received fail!\n";
     }
 
-    if(distance != 0)
+    if (distance != 0)
         move(MV_SPEED, distance, isForward);
-    if(angle != 0)
+    if (angle != 0)
         rotate(degrees2radians(ANGULAR_SPEED), degrees2radians(angle), clockwise);
 }

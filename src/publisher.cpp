@@ -44,7 +44,7 @@ int main(int argc, char **argv)
     ros::Publisher chatter_pub = n.advertise<std_msgs::String>("chatter", 1000);
 
     // In Hz
-    ros::Rate loop_rate(0.4);
+    ros::Rate loop_rate(0.2);
     /**
    * A count of how many messages we have sent. This is used to create
    * a unique string for each message.
@@ -59,15 +59,17 @@ int main(int argc, char **argv)
         std_msgs::String msg;
 
         std::string ss = "";
-        if(!flag){
-	    ss = "MOVE 4 true 0 true";
-	    flag = true;
-	}
-	else{
-	    ss = "MOVE 0 true 90 false";
-	    flag = false;
-	}
-	msg.data = ss;
+        if (!flag)
+        {
+            ss = "MOVE 4 true 0 true";
+            flag = true;
+        }
+        else
+        {
+            ss = "MOVE 0 true 90 false";
+            flag = false;
+        }
+        msg.data = ss;
         ROS_INFO("%s", msg.data.c_str());
 
         /**
